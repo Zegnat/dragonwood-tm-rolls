@@ -7,9 +7,6 @@ const cumsum = (v: number[]) => v.reduce((o, n, i) => o.concat((o[i - 1] || 0) +
 const cumsumRight = (v: number[]) => {
   for (let i = v.length - 2; i >= 0; --i) { v[i] += v[i + 1]; }
 };
-function* enumerate<T>(v: T[]|IterableIterator<T>, n: number = 0): IterableIterator<[number, T]> {
-  for (let x of v) { yield [n++, x]; }
-}
 
 // Hat tip: https://math.stackexchange.com/a/1469254/81266
 const prob2odds = (p: number) => p > 0.5 ? [1 / (1 - p) - 1, 1] : [1, 1 / p - 1];
@@ -74,7 +71,7 @@ export function print(dice2Freqs: Map<number, SumCumlProb[]>, withReroll?: Map<n
     let tableReroll: SumCumlProb[] = [];
     if (withReroll) { tableReroll = withReroll.get(numDice) || []; } // TypeScript pacification
 
-    for (let [tableIdx, {sum, prob}] of enumerate(table)) {
+    for (let [tableIdx, {sum, prob}] of table.entries()) {
       if (prob >= 1) { continue; }
       let probReroll = -1;
       if (withReroll) { probReroll = tableReroll[tableIdx].prob; }
