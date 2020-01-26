@@ -1,6 +1,6 @@
 import {product} from 'cartesian-product-generator';
 
-// const sum = (v: number[]) => v.reduce((o, n) => o + n);
+const sum = (v: number[]) => v.reduce((o, n) => o + n);
 const max = (v: number[]) => v.reduce((o, n) => Math.max(o, n));
 const zeros = (n: number) => Array.from(Array(n), _ => 0);
 const cumsum = (v: number[]) => v.reduce((o, n, i) => o.concat((o[i - 1] || 0) + n), [] as number[]);
@@ -88,4 +88,22 @@ if (require.main === module) {
   const reroll = false;
   let dice2prob = enumerateDice(dragonwoodDiceSides, maxDice, reroll);
   print(dice2prob, enumerateDice(dragonwoodDiceSides, maxDice, !reroll));
+  {
+    // monte carlo analsysis
+    const numDice = 4;
+    const minRollWanted = 11;
+    const nTrials = 1e7;
+
+    const nSides = dragonwoodDiceSides.length;
+    const rollADice = () => dragonwoodDiceSides[Math.floor(Math.random() * nSides)];
+    let freq = 0;
+    const blank = zeros(numDice);
+    for (let i = 0; i < nTrials; i++) {
+      const roll = blank.map(rollADice);
+      const reroll = rollADice();
+      freq += ((sum(roll) >= minRollWanted) || (sum(omitSmallest(roll)) + reroll >= minRollWanted)) ? 1 : 0;
+    }
+    console.log(`Prob rolling >= ${minRollWanted} with ${numDice} die and Lucky Mushroom option, ${
+        nTrials.toExponential(3)} tries: ${(freq / nTrials * 100)}%`);
+  }
 }

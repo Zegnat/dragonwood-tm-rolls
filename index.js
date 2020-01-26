@@ -31,7 +31,7 @@ var __values = (this && this.__values) || function (o) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var cartesian_product_generator_1 = require("cartesian-product-generator");
-// const sum = (v: number[]) => v.reduce((o, n) => o + n);
+var sum = function (v) { return v.reduce(function (o, n) { return o + n; }); };
 var max = function (v) { return v.reduce(function (o, n) { return Math.max(o, n); }); };
 var zeros = function (n) { return Array.from(Array(n), function (_) { return 0; }); };
 var cumsum = function (v) { return v.reduce(function (o, n, i) { return o.concat((o[i - 1] || 0) + n); }, []); };
@@ -128,7 +128,7 @@ function print(dice2Freqs, withReroll) {
             } // TypeScript pacification
             try {
                 for (var _d = __values(table.entries()), _e = _d.next(); !_e.done; _e = _d.next()) {
-                    var _f = __read(_e.value, 2), tableIdx = _f[0], _g = _f[1], sum = _g.sum, prob = _g.prob;
+                    var _f = __read(_e.value, 2), tableIdx = _f[0], _g = _f[1], sum_1 = _g.sum, prob = _g.prob;
                     if (prob >= 1) {
                         continue;
                     }
@@ -136,7 +136,7 @@ function print(dice2Freqs, withReroll) {
                     if (withReroll) {
                         probReroll = tableReroll[tableIdx].prob;
                     }
-                    console.log("- \u2265" + sum + ", " + numToPercent(prob) + "% or " + numToOdds(prob) +
+                    console.log("- \u2265" + sum_1 + ", " + numToPercent(prob) + "% or " + numToOdds(prob) +
                         (probReroll >= 0 ? " (rerolling? Then " + numToPercent(probReroll) + "% or " + numToOdds(probReroll) + ")" : ''));
                 }
             }
@@ -159,9 +159,25 @@ function print(dice2Freqs, withReroll) {
 }
 exports.print = print;
 if (require.main === module) {
-    var dragonwoodDiceSides = [1, 2, 2, 3, 3, 4];
+    var dragonwoodDiceSides_1 = [1, 2, 2, 3, 3, 4];
     var maxDice = 6;
     var reroll = false;
-    var dice2prob = enumerateDice(dragonwoodDiceSides, maxDice, reroll);
-    print(dice2prob, enumerateDice(dragonwoodDiceSides, maxDice, !reroll));
+    var dice2prob = enumerateDice(dragonwoodDiceSides_1, maxDice, reroll);
+    print(dice2prob, enumerateDice(dragonwoodDiceSides_1, maxDice, !reroll));
+    {
+        // monte carlo analsysis
+        var numDice = 4;
+        var minRollWanted = 11;
+        var nTrials = 1e7;
+        var nSides_1 = dragonwoodDiceSides_1.length;
+        var rollADice = function () { return dragonwoodDiceSides_1[Math.floor(Math.random() * nSides_1)]; };
+        var freq = 0;
+        var blank = zeros(numDice);
+        for (var i = 0; i < nTrials; i++) {
+            var roll = blank.map(rollADice);
+            var reroll_1 = rollADice();
+            freq += ((sum(roll) >= minRollWanted) || (sum(omitSmallest(roll)) + reroll_1 >= minRollWanted)) ? 1 : 0;
+        }
+        console.log("Prob rolling >= " + minRollWanted + " with " + numDice + " die and Lucky Mushroom option, " + nTrials.toExponential(3) + " tries: " + (freq / nTrials * 100) + "%");
+    }
 }
